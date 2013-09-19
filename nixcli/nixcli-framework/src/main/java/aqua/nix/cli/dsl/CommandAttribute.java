@@ -675,20 +675,25 @@
  * {http://www.gnu.org/philosophy/why-not-lgpl.html}.
  */
 
-package aqua.nix.cli;
-
-
-import aqua.nix.cli.api.Command;
+package aqua.nix.cli.dsl;
 
 import java.util.List;
 
-public final class Interpreter {
+public class CommandAttribute {
 
-    public Interpreter(List<? extends Command> commands) {
+    private final String id;
+    private final List<String> args;
+
+    public CommandAttribute(String id, List<String> args) {
+        this.id = id;
+        this.args = args;
     }
 
-    public String interpret(String input) {
-        return input;
+    public String getId() {
+        return id;
     }
 
+    public List<String> getArgs() {
+        return args;
+    }
 }

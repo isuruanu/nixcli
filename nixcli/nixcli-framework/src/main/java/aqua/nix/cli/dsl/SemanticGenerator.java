@@ -677,93 +677,50 @@
 
 package aqua.nix.cli.dsl;
 
-// Generated from Input.g4 by ANTLR 4.1
 
-import org.antlr.v4.runtime.ParserRuleContext;
+import aqua.nix.cli.api.Command;
+import aqua.nix.cli.dsl.InputBaseListener;
+import aqua.nix.cli.dsl.InputLexer;
+import aqua.nix.cli.dsl.InputParser;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
-/**
- * This class provides an empty implementation of {@link InputListener},
- * which can be extended to create a listener which only needs to handle a subset
- * of the available methods.
- */
-public class InputBaseListener implements InputListener {
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterId(@NotNull InputParser.IdContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitId(@NotNull InputParser.IdContext ctx) { }
+import java.util.ArrayList;
+import java.util.List;
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterArg(@NotNull InputParser.ArgContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitArg(@NotNull InputParser.ArgContext ctx) { }
+public class SemanticGenerator {
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterCmd(@NotNull InputParser.CmdContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitCmd(@NotNull InputParser.CmdContext ctx) { }
+    public List<CommandAttribute> interpret(String input) {
+        List<CommandAttribute>  commands = new ArrayList<>();
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterInput(@NotNull InputParser.InputContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitInput(@NotNull InputParser.InputContext ctx) { }
+        CharStream stream = new ANTLRInputStream(input);
+        InputLexer lexer = new InputLexer(stream);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        InputParser parser = new InputParser(tokens);
+        parser.addParseListener(new InputListenerImpl(commands));
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterEveryRule(@NotNull ParserRuleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitEveryRule(@NotNull ParserRuleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void visitTerminal(@NotNull TerminalNode node) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void visitErrorNode(@NotNull ErrorNode node) { }
+        parser.input();
+        return commands;
+    }
+
+    class InputListenerImpl extends InputBaseListener {
+        List<CommandAttribute>  commands = new ArrayList<>();
+
+        InputListenerImpl(List<CommandAttribute> commands) {
+            this.commands = commands;
+        }
+
+        @Override
+        public void exitCmd(@NotNull InputParser.CmdContext ctx) {
+            String commandId = ctx.id().getText();
+            List<String> args = new ArrayList<>();
+            for (InputParser.ArgContext argContext : ctx.arg()) {
+                args.add(argContext.getText());
+            }
+            commands.add(new CommandAttribute(commandId, args));
+        }
+    }
 }
+

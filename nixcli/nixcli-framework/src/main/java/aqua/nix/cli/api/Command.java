@@ -687,6 +687,6 @@ public interface Command {
 
     public List<Option> options();
 
-    public void execute(List<Option> options, List<String> args);
+    public String execute(List<Option> options, List<String> args);
 
 }

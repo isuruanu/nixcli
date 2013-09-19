@@ -679,11 +679,13 @@ package aqua.nix.cli;
 
 import aqua.nix.cli.api.Command;
 import aqua.nix.cli.api.SplashScreen;
+import aqua.nix.cli.dsl.CommandAttribute;
+import aqua.nix.cli.dsl.SemanticGenerator;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.System.out;
 
@@ -693,6 +695,7 @@ public final class CommandLine implements Runnable{
     private final SplashScreen splashScreen;
     private final List<? extends Command> commands;
     private final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    private final Map<String, Command> commandsLookUp = new HashMap<>();
 
     public CommandLine(String prompt,
                        SplashScreen splashScreen,
@@ -700,29 +703,34 @@ public final class CommandLine implements Runnable{
         this.prompt = prompt;
         this.splashScreen = splashScreen;
         this.commands = commands;
+        for (Command command : commands) {
+            commandsLookUp.put(command.id(), command);
+        }
+
     }
 
-    public List<? extends Command> commands() {
-        return commands;
+    public Map<String, Command> commands() {
+        return commandsLookUp;
     }
 
     @Override
     public void run() {
 
         out.println(splashScreen.splash());
-        Interpreter interpreter = new Interpreter(commands);
+        CmdExecutor cmdExecutor = new CmdExecutor(commandsLookUp);
+        SemanticGenerator semanticGenerator = new SemanticGenerator();
 
         while (true) {
             out.print(prompt);
             String line = null;
             try {
                 line = reader.readLine();
-                String output = interpreter.interpret(line);
+                List<CommandAttribute> commandAttributes = semanticGenerator.interpret(line);
+                String output = cmdExecutor.execute(commandAttributes);
                 out.println(output);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            // Tests code
         }
     }
 }

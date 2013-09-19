@@ -675,95 +675,40 @@
  * {http://www.gnu.org/philosophy/why-not-lgpl.html}.
  */
 
-package aqua.nix.cli.dsl;
+package aqua.nix.cli;
 
-// Generated from Input.g4 by ANTLR 4.1
 
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.TerminalNode;
+import aqua.nix.cli.api.Command;
+import aqua.nix.cli.api.Option;
+import aqua.nix.cli.dsl.CommandAttribute;
 
-/**
- * This class provides an empty implementation of {@link InputListener},
- * which can be extended to create a listener which only needs to handle a subset
- * of the available methods.
- */
-public class InputBaseListener implements InputListener {
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterId(@NotNull InputParser.IdContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitId(@NotNull InputParser.IdContext ctx) { }
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterArg(@NotNull InputParser.ArgContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitArg(@NotNull InputParser.ArgContext ctx) { }
+public final class CmdExecutor {
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterCmd(@NotNull InputParser.CmdContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitCmd(@NotNull InputParser.CmdContext ctx) { }
+    private Map<String, Command> commandsLookUp;
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterInput(@NotNull InputParser.InputContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitInput(@NotNull InputParser.InputContext ctx) { }
+    public CmdExecutor(Map<String, Command> commandsLookUp) {
+        this.commandsLookUp = commandsLookUp;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void enterEveryRule(@NotNull ParserRuleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitEveryRule(@NotNull ParserRuleContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void visitTerminal(@NotNull TerminalNode node) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void visitErrorNode(@NotNull ErrorNode node) { }
+    public String execute(List<CommandAttribute> commandAttributes) {
+        String currentOutput = "";
+        for (CommandAttribute commandAttribute : commandAttributes) {
+            List<String> args = commandAttribute.getArgs();
+
+            if(!currentOutput.trim().equals("")) {
+                args.add(currentOutput);
+            }
+
+            List<Option> options = Collections.emptyList();
+
+            currentOutput = commandsLookUp.get(commandAttribute.getId()).execute(options, args);
+        }
+
+        return currentOutput;
+    }
+
 }

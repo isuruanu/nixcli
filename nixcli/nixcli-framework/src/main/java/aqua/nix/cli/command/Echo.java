@@ -699,13 +699,12 @@ public class Echo implements Command {
     }
 
     @Override
-    public void execute(List<Option> options, List<String> args) {
+    public String execute(List<Option> options, List<String> args) {
         StringBuilder echo =  new StringBuilder();
         for (String arg : args) {
             echo.append(arg).append(" ");
         }
 
-        System.out.println(echo.toString());
-
+       return echo.toString();
     }
 }
