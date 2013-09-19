@@ -13,6 +13,14 @@
     <name>nixcli-framework</name>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4</artifactId>
+            <version>4.1</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
